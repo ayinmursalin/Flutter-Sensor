@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+              padding: const EdgeInsets.only(left: 16, right: 16),
               child: DeviceInfoView(
                 deviceName: deviceName,
                 deviceModel: deviceModel,
@@ -154,6 +154,25 @@ class _HomePageState extends State<HomePage> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+              child: hasLocationPermission
+                  ? StreamBuilder(
+                stream: Geolocator.getPositionStream(
+                  locationSettings: locationSettings,
+                ),
+                builder: (ctx, snapshot) {
+                  return GeolocationView(
+                    latitude: snapshot.data?.latitude ?? 0.0,
+                    longitude: snapshot.data?.longitude ?? 0.0,
+                  );
+                },
+              )
+                  : ElevatedButton(
+                onPressed: _requestLocationPermission,
+                child: const Text('Enable Access Location'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
               child: StreamBuilder(
                 stream: battery.onBatteryStateChanged,
                 builder: (ctx, batteryState) {
@@ -168,25 +187,6 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
-              child: hasLocationPermission
-                  ? StreamBuilder(
-                      stream: Geolocator.getPositionStream(
-                        locationSettings: locationSettings,
-                      ),
-                      builder: (ctx, snapshot) {
-                        return GeolocationView(
-                          latitude: snapshot.data?.latitude ?? 0.0,
-                          longitude: snapshot.data?.longitude ?? 0.0,
-                        );
-                      },
-                    )
-                  : ElevatedButton(
-                      onPressed: _requestLocationPermission,
-                      child: const Text('Enable Access Location'),
-                    ),
             ),
           ],
         ),
