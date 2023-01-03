@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -298,8 +297,6 @@ class BatteryLevelView extends StatelessWidget {
     required this.percentage,
   }) : super(key: key);
 
-  final double width = 240;
-
   @override
   Widget build(BuildContext context) {
     var icon = Icons.electric_bolt_rounded;
@@ -317,57 +314,60 @@ class BatteryLevelView extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(
-          width: 240,
-          height: 80,
-          child: Stack(
-            alignment: Alignment.topLeft,
-            children: [
-              ClipRect(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: percentage / 100,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(32),
-                      color: Theme.of(context).colorScheme.primaryContainer,
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 80,
+            child: Stack(
+              alignment: Alignment.topLeft,
+              children: [
+                ClipRect(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: percentage / 100,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32),
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(32),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(32),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Visibility(
-                      visible: state == BatteryState.charging ||
-                          state == BatteryState.full,
-                      child: Icon(
-                        icon,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Visibility(
+                        visible: state == BatteryState.charging ||
+                            state == BatteryState.full,
+                        child: Icon(
+                          icon,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '$percentage %',
-                      style: TextStyle(
-                        fontSize: 32,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      Text(
+                        '$percentage %',
+                        style: TextStyle(
+                          fontSize: 32,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ],
