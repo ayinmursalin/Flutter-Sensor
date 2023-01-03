@@ -20,100 +20,137 @@ class _LoginPageState extends State<LoginPage> {
   final usernameEditing = TextEditingController();
   final passwordEditing = TextEditingController();
 
+  var isShowPassword = false;
+
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: SafeArea(
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 40),
-                child: Image.asset('assets/images/img_synapsis_logo.png'),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 64),
-                child: TextField(
-                  controller: usernameEditing,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    labelText: 'Username',
-                    hintText: 'Username',
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
-                  textInputAction: TextInputAction.next,
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, right: 24, top: 120),
+                  child: Image.asset('assets/images/img_synapsis_logo.png'),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
-                child: TextField(
-                  controller: passwordEditing,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 148),
+                  child: TextField(
+                    controller: usernameEditing,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      labelText: 'Username',
+                      hintText: 'Username',
+                      contentPadding: const EdgeInsets.all(16),
                     ),
-                    labelText: 'Password',
-                    hintText: 'Password',
-                    contentPadding: const EdgeInsets.all(16),
+                    textInputAction: TextInputAction.next,
                   ),
                 ),
-              ),
-              Container(
-                width: 160,
-                margin: const EdgeInsets.all(16),
-                child: OutlinedButton(
-                  onPressed: _onLogin,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: colorScheme.primary,
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+                  child: TextField(
+                    controller: passwordEditing,
+                    obscureText: !isShowPassword,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      labelText: 'Password',
+                      hintText: 'Password',
+                      contentPadding: const EdgeInsets.all(16),
+                      suffixIcon: !isShowPassword
+                          ? IconButton(
+                              onPressed: _onShowPassword,
+                              icon: Icon(
+                                Icons.visibility_rounded,
+                                color: colorScheme.primary,
+                              ),
+                            )
+                          : IconButton(
+                              onPressed: _onHidePassword,
+                              icon: Icon(
+                                Icons.visibility_off,
+                                color: colorScheme.primary,
+                              ),
+                            ),
                     ),
+                  ),
+                ),
+                Container(
+                  width: 160,
+                  margin: const EdgeInsets.only(left: 16, right: 16, top: 32),
+                  child: OutlinedButton(
+                    onPressed: _onLogin,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text('Login'),
+                        SizedBox(width: 16),
+                        Icon(Icons.arrow_right_alt_rounded)
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 64,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text('Login'),
-                      SizedBox(width: 16),
-                      Icon(Icons.arrow_right_alt_rounded)
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        style: IconButton.styleFrom(
+                          backgroundColor: colorScheme.primaryContainer,
+                          foregroundColor: colorScheme.primary,
+                        ),
+                        onPressed: _onLoginWithFingerprint,
+                        icon: const Icon(
+                          Icons.fingerprint,
+                          size: 32,
+                        ),
+                      )
                     ],
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      style: IconButton.styleFrom(
-                        backgroundColor: colorScheme.primaryContainer,
-                        foregroundColor: colorScheme.primary,
-                      ),
-                      onPressed: _onLoginWithFingerprint,
-                      icon: const Icon(
-                        Icons.fingerprint,
-                        size: 32,
-                      ),
-                    )
-                  ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  void _onShowPassword() {
+    setState(() {
+      isShowPassword = true;
+    });
+  }
+
+  void _onHidePassword() {
+    setState(() {
+      isShowPassword = false;
+    });
+  }
+
   void _onLogin() async {
-    var username = usernameEditing.text;
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    var username = usernameEditing.text.trim();
     var password = passwordEditing.text;
 
     var userDao = await DbHelper.getUserDao();
@@ -147,10 +184,12 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    localAuth.authenticate(
+    localAuth
+        .authenticate(
       localizedReason: 'Login with fingerprint',
       options: const AuthenticationOptions(biometricOnly: true),
-    ).then((isSuccess) {
+    )
+        .then((isSuccess) {
       if (isSuccess) {
         Navigator.pushReplacementNamed(context, HomePage.route);
       } else {
