@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sensor/data/local/db/db_helper.dart';
 import 'package:flutter_sensor/ui/main/dashboard_page.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:local_auth/local_auth.dart';
 
 class LoginPage extends StatefulWidget {
   static const route = '/auth/login';
@@ -19,6 +22,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -66,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: _onLogin,
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: colorScheme.primary,
                     ),
                   ),
                   child: Row(
@@ -80,6 +85,26 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      style: IconButton.styleFrom(
+                        backgroundColor: colorScheme.primaryContainer,
+                        foregroundColor: colorScheme.primary,
+                      ),
+                      onPressed: _onLoginWithFingerprint,
+                      icon: const Icon(
+                        Icons.fingerprint,
+                        size: 32,
+                      ),
+                    )
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -107,6 +132,42 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       Navigator.pushReplacementNamed(context, HomePage.route);
+    });
+  }
+
+  void _onLoginWithFingerprint() async {
+    var localAuth = LocalAuthentication();
+
+    var canCheckBiometrics = await localAuth.canCheckBiometrics;
+    var canAuthenticate =
+        canCheckBiometrics || await localAuth.isDeviceSupported();
+
+    if (!canAuthenticate) {
+      Fluttertoast.showToast(msg: 'Unable to use biometrics with this devices');
+      return;
+    }
+
+    localAuth.authenticate(
+      localizedReason: 'Login with fingerprint',
+      options: const AuthenticationOptions(biometricOnly: true),
+    ).then((isSuccess) {
+      if (isSuccess) {
+        Navigator.pushReplacementNamed(context, HomePage.route);
+      } else {
+        Fluttertoast.showToast(msg: 'Login cancelled');
+      }
+    }).catchError((e) {
+      if (e is PlatformException) {
+        if (e.code == auth_error.notAvailable) {
+          Fluttertoast.showToast(msg: 'Biometrics not available');
+        } else if (e.code == auth_error.notEnrolled) {
+          Fluttertoast.showToast(msg: 'Please set biometric first');
+        } else {
+          Fluttertoast.showToast(msg: 'Error ${e.code}');
+        }
+      } else {
+        Fluttertoast.showToast(msg: 'Unknown Error $e');
+      }
     });
   }
 }
