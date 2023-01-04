@@ -21,6 +21,15 @@ class _LoginPageState extends State<LoginPage> {
   final usernameEditing = TextEditingController();
   final passwordEditing = TextEditingController();
 
+  late AppDatabase appDatabase;
+
+  @override
+  void initState() {
+    super.initState();
+
+    appDatabase = Provider.of<AppDatabase>(context, listen: false);
+  }
+
   var isShowPassword = false;
 
   @override
@@ -154,9 +163,7 @@ class _LoginPageState extends State<LoginPage> {
     var username = usernameEditing.text.trim();
     var password = passwordEditing.text;
 
-    var userDao = Provider.of<AppDatabase>(context, listen: false).userDao;
-
-    userDao.userList(username).then((userList) {
+    appDatabase.userDao.userList(username).then((userList) {
       if (userList.isEmpty) {
         Fluttertoast.showToast(msg: 'User is not exists');
 

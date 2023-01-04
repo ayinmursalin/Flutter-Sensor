@@ -4,6 +4,11 @@ import 'dart:io';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sensor/ui/main/todo_list_page.dart';
+import 'package:flutter_sensor/ui/widgets/battery_level_view.dart';
+import 'package:flutter_sensor/ui/widgets/device_info_view.dart';
+import 'package:flutter_sensor/ui/widgets/geolocation_view.dart';
+import 'package:flutter_sensor/ui/widgets/sensor_info_view.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -19,26 +24,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var dateTime = '';
-  Timer? timer;
-
-  late DateFormat dateFormat;
   final Battery battery = Battery();
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.best,
   );
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
 
-  bool hasLocationPermission = false;
+  late DateFormat dateFormat;
 
+  Timer? timer;
+
+  String dateTime = '';
   String deviceName = '';
   String deviceModel = '';
   String osVersion = '';
+
+  bool hasLocationPermission = false;
+
+  int refreshRate = 1;
 
   @override
   void initState() {
     super.initState();
 
+    _setupDateTime();
+    _setupGeolocator();
+    _setupDeviceInfo();
+  }
+
+  void _setupDateTime() {
     initializeDateFormatting('id_ID', null).then((value) {
       dateFormat = DateFormat('dd MMMM yyyy, kk:mm:ss', 'id_ID');
 
@@ -48,18 +62,22 @@ class _HomePageState extends State<HomePage> {
         });
       });
     });
+  }
 
+  void _setupGeolocator() {
     Geolocator.checkPermission().then((permission) {
       setState(() {
         hasLocationPermission = permission == LocationPermission.always ||
             permission == LocationPermission.whileInUse;
       });
     });
+  }
 
+  void _setupDeviceInfo() {
     if (Platform.isAndroid) {
       deviceInfoPlugin.androidInfo.then((value) {
         setState(() {
-          deviceName = value.brand;
+          deviceName = value.device;
           deviceModel = value.model;
           osVersion = value.version.release;
         });
@@ -88,6 +106,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flutter Sensor'),
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (ctx) {
+              return [
+                const PopupMenuItem(
+                  value: 0,
+                  child: Text('Todo List'),
+                ),
+              ];
+            },
+            onSelected: _handlePopupMenu,
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -194,6 +225,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _handlePopupMenu(int selectedIndex) {
+    switch(selectedIndex) {
+      case 0:
+        Navigator.pushNamed(context, TodoListPage.route);
+        break;
+      default:
+    }
+  }
+
   void _requestLocationPermission() {
     Geolocator.requestPermission().then((permission) {
       setState(() {
@@ -201,216 +241,5 @@ class _HomePageState extends State<HomePage> {
             permission == LocationPermission.whileInUse;
       });
     });
-  }
-}
-
-class DeviceInfoView extends StatelessWidget {
-  final String deviceName;
-  final String deviceModel;
-  final String osVersion;
-
-  const DeviceInfoView({
-    Key? key,
-    required this.deviceName,
-    required this.deviceModel,
-    required this.osVersion,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Device Info',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text('Device: $deviceName'),
-        Text('Model: $deviceModel'),
-        Text('OS Version: $osVersion')
-      ],
-    );
-  }
-}
-
-class SensorInfoView extends StatelessWidget {
-  final String title;
-  final double x;
-  final double y;
-  final double z;
-
-  const SensorInfoView({
-    Key? key,
-    required this.title,
-    required this.x,
-    required this.y,
-    required this.z,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'X: ${x.toStringAsFixed(6)}',
-              style: const TextStyle(color: Colors.red),
-            ),
-            Text(
-              'Y: ${y.toStringAsFixed(6)}',
-              style: const TextStyle(color: Colors.green),
-            ),
-            Text(
-              'Z: ${z.toStringAsFixed(6)}',
-              style: const TextStyle(color: Colors.blue),
-            ),
-          ],
-        )
-      ],
-    );
-  }
-}
-
-class BatteryLevelView extends StatelessWidget {
-  final BatteryState state;
-  final int percentage;
-
-  const BatteryLevelView({
-    Key? key,
-    required this.state,
-    required this.percentage,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    var icon = Icons.electric_bolt_rounded;
-    if (state == BatteryState.full) {
-      icon = Icons.battery_charging_full_rounded;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Battery Level',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 80,
-            child: Stack(
-              alignment: Alignment.topLeft,
-              children: [
-                ClipRect(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: percentage / 100,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Visibility(
-                        visible: state == BatteryState.charging ||
-                            state == BatteryState.full,
-                        child: Icon(
-                          icon,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                      Text(
-                        '$percentage %',
-                        style: TextStyle(
-                          fontSize: 32,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class GeolocationView extends StatelessWidget {
-  final double latitude;
-  final double longitude;
-
-  const GeolocationView({
-    Key? key,
-    required this.latitude,
-    required this.longitude,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Current Location',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Latitude: $latitude'),
-              Text('Longitude: $longitude'),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }

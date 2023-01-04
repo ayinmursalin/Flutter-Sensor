@@ -4,6 +4,7 @@ import 'package:flutter_sensor/data/local/db/db_helper.dart';
 import 'package:flutter_sensor/ui/auth/login_page.dart';
 import 'package:flutter_sensor/ui/auth/register_page.dart';
 import 'package:flutter_sensor/ui/main/dashboard_page.dart';
+import 'package:flutter_sensor/ui/main/todo_list_page.dart';
 import 'package:provider/provider.dart';
 
 import 'color_schemes.g.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => appDatabase)
+        Provider(create: (_) => appDatabase),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
           LoginPage.route: (ctx) => const LoginPage(),
           RegisterPage.route: (ctx) => const RegisterPage(),
           HomePage.route: (ctx) => const HomePage(),
+          TodoListPage.route: (ctx) => const TodoListPage(),
         },
       ),
     );

@@ -89,7 +89,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `full_name` TEXT NOT NULL, `picture_path` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `todos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `label` TEXT NOT NULL, `created_at` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `todos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `label` TEXT NOT NULL, `created_at` INTEGER NOT NULL)');
         await database.execute(
             'CREATE UNIQUE INDEX `index_users_username` ON `users` (`username`)');
 
@@ -179,9 +179,7 @@ class _$TodoDao extends TodoDao {
   @override
   Stream<List<TodoEntity>> getTodoList() {
     return _queryAdapter.queryListStream('SELECT * FROM todos',
-        mapper: (Map<String, Object?> row) => TodoEntity(
-            row['id'] as int,
-            row['label'] as String,
+        mapper: (Map<String, Object?> row) => TodoEntity(row['label'] as String,
             _dateTimeConverter.decode(row['created_at'] as int)),
         queryableName: 'todos',
         isView: false);

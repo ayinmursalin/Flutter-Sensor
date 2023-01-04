@@ -3,7 +3,7 @@ import 'package:floor/floor.dart';
 @Entity(tableName: 'todos')
 class TodoEntity {
   @PrimaryKey(autoGenerate: true)
-  final int id;
+  final int? id = null;
 
   @ColumnInfo(name: 'label')
   final String label;
@@ -12,7 +12,6 @@ class TodoEntity {
   final DateTime createdAt;
 
   TodoEntity(
-    this.id,
     this.label,
     this.createdAt,
   );
