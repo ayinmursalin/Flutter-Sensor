@@ -37,7 +37,7 @@ class SensorChartView extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16, right: 16),
           child: SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: 240,
+            height: 188,
             child: LineChart(
               LineChartData(
                 clipData: FlClipData.all(),
