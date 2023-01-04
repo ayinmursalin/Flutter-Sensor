@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sensor/ui/main/sensor_chart_page.dart';
 import 'package:flutter_sensor/ui/main/todo_list_page.dart';
 import 'package:flutter_sensor/ui/widgets/battery_level_view.dart';
 import 'package:flutter_sensor/ui/widgets/device_info_view.dart';
@@ -113,6 +114,10 @@ class _HomePageState extends State<HomePage> {
                 const PopupMenuItem(
                   value: 0,
                   child: Text('Todo List'),
+                ),
+                const PopupMenuItem(
+                  value: 1,
+                  child: Text('Sensor Chart'),
                 ),
               ];
             },
@@ -226,9 +231,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handlePopupMenu(int selectedIndex) {
-    switch(selectedIndex) {
+    switch (selectedIndex) {
       case 0:
         Navigator.pushNamed(context, TodoListPage.route);
+        break;
+      case 1:
+        Navigator.pushNamed(context, SensorChartPage.route);
         break;
       default:
     }

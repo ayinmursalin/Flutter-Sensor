@@ -23,14 +23,14 @@ class _LoginPageState extends State<LoginPage> {
 
   late AppDatabase appDatabase;
 
+  var isShowPassword = false;
+
   @override
   void initState() {
     super.initState();
 
     appDatabase = Provider.of<AppDatabase>(context, listen: false);
   }
-
-  var isShowPassword = false;
 
   @override
   Widget build(BuildContext context) {
