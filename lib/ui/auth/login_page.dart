@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_sensor/data/local/db/db_helper.dart';
+import 'package:flutter_sensor/data/local/db/app_database.dart';
 import 'package:flutter_sensor/ui/main/dashboard_page.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   static const route = '/auth/login';
@@ -153,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
     var username = usernameEditing.text.trim();
     var password = passwordEditing.text;
 
-    var userDao = await DbHelper.getUserDao();
+    var userDao = Provider.of<AppDatabase>(context, listen: false).userDao;
 
     userDao.userList(username).then((userList) {
       if (userList.isEmpty) {

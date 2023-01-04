@@ -1,9 +1,8 @@
 import 'package:floor/floor.dart';
 import 'package:flutter_sensor/data/local/db/app_database.dart';
-import 'package:flutter_sensor/data/local/db/daos/user_dao.dart';
 
 class DbHelper {
-  static Future<AppDatabase> _getDatabase() {
+  static Future<AppDatabase> initializeDatabase() {
     var callback = Callback(
       onCreate: (db, version) {
         db.insert('users', {
@@ -20,10 +19,5 @@ class DbHelper {
         .databaseBuilder('flutter_sensor.db')
         .addCallback(callback)
         .build();
-  }
-
-  static Future<UserDao> getUserDao() async {
-    var appDatabase = await _getDatabase();
-    return appDatabase.userDao;
   }
 }

@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   UserDao? _userDaoInstance;
 
+  TodoDao? _todoDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -86,6 +88,10 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `full_name` TEXT NOT NULL, `picture_path` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `todos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `label` TEXT NOT NULL, `created_at` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE UNIQUE INDEX `index_users_username` ON `users` (`username`)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -96,6 +102,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   UserDao get userDao {
     return _userDaoInstance ??= _$UserDao(database, changeListener);
+  }
+
+  @override
+  TodoDao get todoDao {
+    return _todoDaoInstance ??= _$TodoDao(database, changeListener);
   }
 }
 
@@ -138,6 +149,50 @@ class _$UserDao extends UserDao {
   @override
   Future<void> registerUser(UserEntity userEntity) async {
     await _userEntityInsertionAdapter.insert(
-        userEntity, OnConflictStrategy.abort);
+        userEntity, OnConflictStrategy.replace);
   }
 }
+
+class _$TodoDao extends TodoDao {
+  _$TodoDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _todoEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'todos',
+            (TodoEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'label': item.label,
+                  'created_at': _dateTimeConverter.encode(item.createdAt)
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TodoEntity> _todoEntityInsertionAdapter;
+
+  @override
+  Stream<List<TodoEntity>> getTodoList() {
+    return _queryAdapter.queryListStream('SELECT * FROM todos',
+        mapper: (Map<String, Object?> row) => TodoEntity(
+            row['id'] as int,
+            row['label'] as String,
+            _dateTimeConverter.decode(row['created_at'] as int)),
+        queryableName: 'todos',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertTodo(TodoEntity todoEntity) async {
+    await _todoEntityInsertionAdapter.insert(
+        todoEntity, OnConflictStrategy.replace);
+  }
+}
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();

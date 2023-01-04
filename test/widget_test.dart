@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_sensor/data/local/db/app_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_sensor/main.dart';
@@ -13,7 +14,11 @@ import 'package:flutter_sensor/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    var testAppDatabase = await $FloorAppDatabase
+        .inMemoryDatabaseBuilder()
+        .build();
+
+    await tester.pumpWidget(MyApp(appDatabase: testAppDatabase));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

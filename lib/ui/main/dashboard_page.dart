@@ -156,20 +156,20 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
               child: hasLocationPermission
                   ? StreamBuilder(
-                stream: Geolocator.getPositionStream(
-                  locationSettings: locationSettings,
-                ),
-                builder: (ctx, snapshot) {
-                  return GeolocationView(
-                    latitude: snapshot.data?.latitude ?? 0.0,
-                    longitude: snapshot.data?.longitude ?? 0.0,
-                  );
-                },
-              )
+                      stream: Geolocator.getPositionStream(
+                        locationSettings: locationSettings,
+                      ),
+                      builder: (ctx, snapshot) {
+                        return GeolocationView(
+                          latitude: snapshot.data?.latitude ?? 0.0,
+                          longitude: snapshot.data?.longitude ?? 0.0,
+                        );
+                      },
+                    )
                   : ElevatedButton(
-                onPressed: _requestLocationPermission,
-                child: const Text('Enable Access Location'),
-              ),
+                      onPressed: _requestLocationPermission,
+                      child: const Text('Enable Access Location'),
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
@@ -353,14 +353,16 @@ class BatteryLevelView extends StatelessWidget {
                             state == BatteryState.full,
                         child: Icon(
                           icon,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                       Text(
                         '$percentage %',
                         style: TextStyle(
                           fontSize: 32,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ],
