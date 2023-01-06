@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sensor/ui/main/camera_page.dart';
 import 'package:flutter_sensor/ui/main/sensor_chart_page.dart';
 import 'package:flutter_sensor/ui/main/todo_list_page.dart';
 import 'package:flutter_sensor/ui/widgets/battery_level_view.dart';
@@ -118,6 +119,10 @@ class _HomePageState extends State<HomePage> {
                 const PopupMenuItem(
                   value: 1,
                   child: Text('Sensor Chart'),
+                ),
+                const PopupMenuItem(
+                  value: 2,
+                  child: Text('Camera'),
                 ),
               ];
             },
@@ -237,6 +242,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case 1:
         Navigator.pushNamed(context, SensorChartPage.route);
+        break;
+      case 2:
+        Navigator.pushNamed(context, CameraPage.route);
         break;
       default:
     }

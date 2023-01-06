@@ -129,10 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                           foregroundColor: colorScheme.primary,
                         ),
                         onPressed: _onLoginWithFingerprint,
-                        icon: const Icon(
-                          Icons.fingerprint,
-                          size: 32,
-                        ),
+                        icon: const Icon(Icons.fingerprint, size: 48),
                       )
                     ],
                   ),

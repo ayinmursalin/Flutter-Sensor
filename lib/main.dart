@@ -3,7 +3,9 @@ import 'package:flutter_sensor/data/local/db/app_database.dart';
 import 'package:flutter_sensor/data/local/db/db_helper.dart';
 import 'package:flutter_sensor/ui/auth/login_page.dart';
 import 'package:flutter_sensor/ui/auth/register_page.dart';
+import 'package:flutter_sensor/ui/main/camera_page.dart';
 import 'package:flutter_sensor/ui/main/dashboard_page.dart';
+import 'package:flutter_sensor/ui/main/image_preview_page.dart';
 import 'package:flutter_sensor/ui/main/sensor_chart_page.dart';
 import 'package:flutter_sensor/ui/main/todo_list_page.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +45,8 @@ class MyApp extends StatelessWidget {
           HomePage.route: (ctx) => const HomePage(),
           TodoListPage.route: (ctx) => const TodoListPage(),
           SensorChartPage.route: (ctx) => const SensorChartPage(),
+          CameraPage.route: (ctx) => const CameraPage(),
+          ImagePreviewPage.route: (ctx) => const ImagePreviewPage(),
         },
       ),
     );
